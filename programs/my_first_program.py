@@ -1,12 +1,29 @@
 from nada_dsl import *
 
-
 def nada_main():
-    party1 = Party(name="Party1")
-    my_int1 = SecretInteger(Input(name="my_int1", party=party1))
-    my_int2 = SecretInteger(Input(name="my_int2", party=party1))
+    # Define the parties (players)
+    player1 = Party(name="Player1")
+    player2 = Party(name="Player2")
+    player3 = Party(name="Player3")
 
-    # compute the sum of my_int1 and my_int2
-    sum_int = my_int1 + my_int2
+    # Secret guesses from each player
+    guess1 = SecretInteger(Input(name="guess1", party=player1))
+    guess2 = SecretInteger(Input(name="guess2", party=player2))
+    guess3 = SecretInteger(Input(name="guess3", party=player3))
 
-    return [Output(sum_int, "sum_output", party1)]
+    # Secret target number (this could also be an input from a secure source)
+    target = SecretInteger(Constant(50))
+
+    # Calculate the absolute differences from the target
+    diff1 = abs(guess1 - target)
+    diff2 = abs(guess2 - target)
+    diff3 = abs(guess3 - target)
+
+    # Determine the closest guess
+    closest_guess = If(diff1 < diff2, If(diff1 < diff3, guess1, guess3), If(diff2 < diff3, guess2, guess3))
+
+    # Output the closest guess to each player
+    return [Output(closest_guess, "closest_guess_output", player1),
+            Output(closest_guess, "closest_guess_output", player2),
+            Output(closest_guess, "closest_guess_output", player3)]
+
